@@ -18,58 +18,76 @@ public class AuthService {
 
     @Autowired
     private EmailService emailService;
+
     @Autowired
     private PendingUserRepository pendingUserRepository;
+
     @Autowired
     private UserRepository userRepository;
 
-    //generateOtp
-     public String generateOtp(RegisterRequest request){
-         if (userRepository.findByEmail(request.getEmail()) != null) {
-             return "Email already registered";
-         }
-     //generating the otp
-         String otp = String.valueOf(1000 + new Random().nextInt(9000));
+    // Generate OTP
+    public String generateOtp(RegisterRequest request) {
 
-         com.indore.entity.PendingUser pendingUser = new PendingUser();
-         pendingUser.setName(request.getName());
-         pendingUser.setEmail(request.getEmail());
-         pendingUser.setAge(request.getAge());
-         pendingUser.setPassword(request.getPassword());
-         pendingUser.setOtp(otp);
-         pendingUser.setExpiryTime(LocalDateTime.now().plusMinutes(5));
+        if (userRepository.findByEmail(request.getEmail()) != null) {
+            return "Email already registered";
+        }
 
-         pendingUserRepository.save(pendingUser);
-         emailService.sendTestMail(request.getEmail(),otp);
-         return "OTP Sent Successfully";
-     }
+        // generate OTP
+        String otp = String.valueOf(1000 + new Random().nextInt(9000));
 
-      public String verifyOtp(OtpVerifyRequest otpVerifyRequest){
-         PendingUser pendingUser= pendingUserRepository.findByEmail(otpVerifyRequest.getEmail());
+        PendingUser pendingUser = new PendingUser();
+        pendingUser.setName(request.getName());
+        pendingUser.setEmail(request.getEmail());
+        pendingUser.setAge(request.getAge());
+        pendingUser.setPassword(request.getPassword());
+        pendingUser.setOtp(otp);
+        pendingUser.setExpiryTime(LocalDateTime.now().plusMinutes(5));
 
-         if(pendingUser == null){
-             return "user not found";
-         }
-         if(LocalDateTime.now().isAfter(pendingUser.getExpiryTime())){
-             return "Otp Expired";
-         }
-         if(!pendingUser.getOtp().equals(otpVerifyRequest.getOtp())){
-             return "Invalid otp";
-         }
-          if(userRepository.findByEmail(pendingUser.getEmail()) != null){
-              return "User already registered";
-          }
-         com.indore.entity.User user = new User();
-         user.setName(pendingUser.getName());
-         user.setEmail(pendingUser.getEmail());
-         user.setAge(pendingUser.getAge());
-         user.setPassword(pendingUser.getPassword());
-         user.setCreateAt(LocalDate.now());
-         user.setRole("User");
-         userRepository.save(user);
-          pendingUserRepository.delete(pendingUser);
-          return "Registration Successful";
+        pendingUserRepository.save(pendingUser);
 
-      }
+        // 🔴 IMPORTANT FIX
+        try {
+            emailService.sendTestMail(request.getEmail(), otp);
+        } catch (Exception e) {
+            System.out.println("Mail sending failed: " + e.getMessage());
+        }
 
+        return "OTP Sent Successfully";
+    }
+
+    // Verify OTP
+    public String verifyOtp(OtpVerifyRequest otpVerifyRequest) {
+
+        PendingUser pendingUser = pendingUserRepository.findByEmail(otpVerifyRequest.getEmail());
+
+        if (pendingUser == null) {
+            return "User not found";
+        }
+
+        if (LocalDateTime.now().isAfter(pendingUser.getExpiryTime())) {
+            return "OTP Expired";
+        }
+
+        if (!pendingUser.getOtp().equals(otpVerifyRequest.getOtp())) {
+            return "Invalid OTP";
+        }
+
+        if (userRepository.findByEmail(pendingUser.getEmail()) != null) {
+            return "User already registered";
+        }
+
+        User user = new User();
+        user.setName(pendingUser.getName());
+        user.setEmail(pendingUser.getEmail());
+        user.setAge(pendingUser.getAge());
+        user.setPassword(pendingUser.getPassword());
+        user.setCreateAt(LocalDate.now());
+        user.setRole("User");
+
+        userRepository.save(user);
+
+        pendingUserRepository.delete(pendingUser);
+
+        return "Registration Successful";
+    }
 }

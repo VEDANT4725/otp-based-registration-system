@@ -16,7 +16,7 @@ public class TestController {
     @Autowired
     private AuthService authService;
 
-    // 👇 Ye method add karo
+
     @GetMapping("/")
     public String home(){
         return "OTP Service Running";
