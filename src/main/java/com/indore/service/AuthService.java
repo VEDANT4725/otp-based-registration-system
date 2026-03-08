@@ -47,9 +47,9 @@ public class AuthService {
 
 
         try {
-//            emailService.sendTestMail(request.getEmail(), otp);
+            emailService.sendTestMail(request.getEmail(), otp);
         } catch (Exception e) {
-//            System.out.println("Mail sending failed: " + e.getMessage());
+            System.out.println("Mail sending failed: " + e.getMessage());
         }
 
         return "OTP Sent Successfully";

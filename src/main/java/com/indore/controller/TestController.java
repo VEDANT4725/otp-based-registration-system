@@ -22,12 +22,12 @@ public class TestController {
         return "OTP Service Running";
     }
 
-    @PostMapping("GenrateOtp")
+    @PostMapping("/GenrateOtp")
     public String generateOtp(@RequestBody RegisterRequest request){
         return authService.generateOtp(request);
     }
 
-    @PostMapping("verify")
+    @PostMapping("/verify")
     public String verifyOtp(@RequestBody OtpVerifyRequest otpVerifyRequest){
         return authService.verifyOtp(otpVerifyRequest);
     }
