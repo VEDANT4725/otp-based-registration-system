@@ -7,19 +7,20 @@ import com.indore.service.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.PublicKey;
-
 @RestController
 public class TestController {
 
     @Autowired
-     private EmailService emailService;
+    private EmailService emailService;
+
     @Autowired
-     private AuthService authService;
-//     @GetMapping("send")
-//     public String sendMail(@RequestParam String email){
-//         return emailService.sendTestMail(email);
-//     }
+    private AuthService authService;
+
+    // 👇 Ye method add karo
+    @GetMapping("/")
+    public String home(){
+        return "OTP Service Running";
+    }
 
     @PostMapping("GenrateOtp")
     public String generateOtp(@RequestBody RegisterRequest request){
@@ -27,8 +28,8 @@ public class TestController {
     }
 
     @PostMapping("verify")
-     public String verifyOtp(@RequestBody OtpVerifyRequest otpVerifyRequest){
-         return authService.verifyOtp(otpVerifyRequest);
-     }
+    public String verifyOtp(@RequestBody OtpVerifyRequest otpVerifyRequest){
+        return authService.verifyOtp(otpVerifyRequest);
+    }
 
 }
